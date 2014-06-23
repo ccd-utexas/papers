@@ -24,3 +24,7 @@ Follow these guidelines if you are not part of the ccd-utexas GitHub organizatio
 
 - Review this [Git branching model](http://nvie.com/posts/a-successful-git-branching-model/).
 - Fork the repository, create and edit your branch, then issue a pull request to merge back into production as per the Git branching model.
+
+## Specific to 2014-06_Harrold_Imager
+
+- Follow PASP [Instructions for Electronic Manuscript Submission](http://www.press.uchicago.edu/journals/pasp/elec_submit.html?journal=pasp)
