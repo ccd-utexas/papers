@@ -1,5 +1,6 @@
 %% Instructions for submission:
 %% http://www.jstor.org/page/journal/publastrsocipaci/forAuthor.html
+%% http://www.press.uchicago.edu/journals/pasp/elec_submit.html?journal=pasp
 
 % \documentclass[manuscript]{aastex}
 \documentclass[preprint2]{aastex}
@@ -17,7 +18,7 @@
 \title{An Economical Time-Series Imager}
 
 %% TODO: STH: Add?: Paul, Denis, Keaton
-%% TODO: STH: Order?: Harrold, Chandler, Montgomery, Keaton, Winget, Paul, Denis, JJ
+%% TODO: STH: Order?: Harrold, Chandler, Montgomery, Keaton, Winget, Paul, Denis
 \author{
     S. T. Harrold\altaffilmark{1},
     D. W. Chandler\altaffilmark{2},
@@ -28,7 +29,9 @@
 \altaffiltext{2}{Meyer Observatory, Clifton, TX 76634, USA}
 
 \begin{abstract}
-[TODO: STH: Write abstract.]
+
+We describe how to assemble a time-series imager using off-the-shelf commercial equipment and software. The externally triggered camera and GPS receiver yield timing accuracy and precision to <~1ms, and commercial time server software audits the data acquisition computer's timestamps. We assembled the time-series imager is in scientific production as the latest iteration in time-series imagers at the McDonald Observatory, 2.1m. The intended audience for this paper is researchers with limited time, budget, or technical staff and support.
+
 \end{abstract}
 
 \keywords{[TODO: STH: Lookup keywords from PASP.]}
@@ -37,7 +40,11 @@
 
 \section{Introduction}
 
-[TODO: STH: Write introduction.]
+Timestamps with sub-second accuracy and precision can be critical for analysis of transient phenomena lasting only minutes. For data that is part of observation campaigns of variable stars, the data persist as part of a long baseline of observations. [TODO: STH: For example, calculating the observed-calculated (O-C) trend for frequencies of a pulsating star require timings to be on order of ...]
+
+Over the past decade, commercially available software and hardware for precision timing applications has come down in price, and standardized drivers have become more commonplace. Researchers can leverage these developments to include precision timing capabilities in new and existing instruments, saving the need for custom hardware or software from technical staff.
+
+[In this paper we describe how we incorporated precision timing into a commercially available camera. Section descriptions]
 
 \section{Instrument}
 
@@ -50,14 +57,30 @@
 %% TODO: STH: \url{}
 %% TODO: STH: \input{external_file.tex}
 
-[TODO: STH: Write about instrument components.]
+[
+- Hardware
+- - ProEM
+- - Trimble
+- - Computer
+- Software
+- - Domain Time
+- - LightField
+- - Trimble VTS
+- Analysis
+- - Fail points
+- - Requirements
+- - Extensions: Spectrometer, ASCOM, MaximDL
+]
+The method is extensible to other data acquisition devices as well, such as spectrometer. The primary requirement is that the camera be externally triggered and/or give a voltage signal indicating the camera's internal status. 
 
 \section{Observations}
 
-[TODO: STH: Write about observations conducted.]
-
-\acknowledgments
-
+[
+- Obs in press
+- Lightcurve
+- Analysis: open source
+- Archiving: TACC
+]
 
 \acknowledgments
 
