@@ -4,8 +4,8 @@ Guidelines for how to contribute.
 
 ## Getting started
 
-1. Make sure you have a [GitHub account](https://github.com/signup/free).
-2. Submit a ticket for your issue, assuming one does not already exist.
+- Make sure you have a [GitHub account](https://github.com/signup/free).
+- Submit a ticket for your issue, assuming one does not already exist.
 
 ## Making changes
 
