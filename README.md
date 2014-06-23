@@ -1,4 +1,3 @@
-papers
-======
+# README.md
 
-Published papers of ccd-utexas organization
+This repository manages papers of the ccd-utexas organization.
