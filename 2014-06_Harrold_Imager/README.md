@@ -2,9 +2,11 @@
 
 ## Contents
 
-* aastex.cls: The AASTeX class file
-* ms.tex: Paper manuscript.
-* natbib.sty: The natbib citation package (v7.1)
+- README.md: This file.
+- CONTRIBUTING.md: Guidelines for how to contribute.
+- aastex.cls: The AASTeX class file.
+- ms.tex: Paper manuscript.
+- natbib.sty: The natbib citation package (v7.1).
 
 ## ShareLaTeX
 
