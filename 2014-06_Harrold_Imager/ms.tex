@@ -30,7 +30,7 @@
 
 \begin{abstract}
 
-We describe how to assemble a time-series imager using off-the-shelf commercial equipment and software. The externally triggered camera and GPS receiver yield timing accuracy and precision to <~1ms, and commercial time server software audits the data acquisition computer's timestamps. We assembled the time-series imager is in scientific production as the latest iteration in time-series imagers at the McDonald Observatory, 2.1m. The intended audience for this paper is researchers with limited time, budget, or technical staff and support.
+We describe how to assemble a time-series imager using off-the-shelf commercial equipment and software. The externally triggered camera and GPS receiver yield timing accuracy and precision to better than 1ms, and commercial time server software audits the data acquisition computer's timestamps. We assembled the time-series imager is in scientific production as the latest iteration in time-series imagers at the McDonald Observatory, 2.1m. The intended audience for this paper is researchers with limited time, budget, or technical staff and support.
 
 \end{abstract}
 
@@ -40,14 +40,6 @@ We describe how to assemble a time-series imager using off-the-shelf commercial 
 
 \section{Introduction}
 
-Timestamps with sub-second accuracy and precision can be critical for analysis of transient phenomena lasting only minutes. For data that is part of observation campaigns of variable stars, the data persist as part of a long baseline of observations. [TODO: STH: For example, calculating the observed-calculated (O-C) trend for frequencies of a pulsating star require timings to be on order of ...]
-
-Over the past decade, commercially available software and hardware for precision timing applications has come down in price, and standardized drivers have become more commonplace. Researchers can leverage these developments to include precision timing capabilities in new and existing instruments, saving the need for custom hardware or software from technical staff.
-
-[In this paper we describe how we incorporated precision timing into a commercially available camera. Section descriptions]
-
-\section{Instrument}
-
 %% TODO: \label{}
 %% TODO: STH: \ref{} \label{}
 %% TODO: STH: \subsection{}
@@ -56,31 +48,81 @@ Over the past decade, commercially available software and hardware for precision
 %% TODO: STH: \dataset[]{}
 %% TODO: STH: \url{}
 %% TODO: STH: \input{external_file.tex}
+%% TODO: STH: \mbox{}
 
-[
-- Hardware
-- - ProEM
-- - Trimble
-- - Computer
-- Software
-- - Domain Time
-- - LightField
-- - Trimble VTS
-- Analysis
-- - Fail points
-- - Requirements
-- - Extensions: Spectrometer, ASCOM, MaximDL
-]
+Timestamps with sub-second accuracy and precision can be critical for analysis of transient phenomena lasting only minutes. For data that is part of observation campaigns of variable stars, the data persist as part of a long baseline of observations. [TODO: STH: For example, calculating the observed-calculated (O-C) trend for frequencies of a pulsating star require timings to be on order of ...]
+
+Over the past decade, commercially available software and hardware for precision timing applications has come down in price, and standardized drivers have become more common. Researchers can leverage these developments to include precision timing capabilities in new and existing instruments, thus saving the need for customized hardware or software. However, we note that using commercial solutions is atypical for astronomical research, in which instruments usually have custom electronics, custom software, and are supported by the time of technical staff rather than by paid licenses with technical support service agreements [TODO: cite papers].
+
+In this paper we describe how we incorporated precision timing into a commercially available camera. In the following sections, we describe the construction of the instrument (Instrument section), the astronomical observations that have been conducted with the instrument as part of its commissioning at the McDonald 2.1m (Observation section) [TODO: link to sections].
+
+\section{Instrument}
+
+Given our science application of pulsating white dwarf stars, our minimal requirements for this instrument were to [TODO: itemize]:
+- Minimal requirements:
+- - acquire images with timestamps accuracy and precision to  < 1 ms [TODO: format]
+- - take exposures with durations ranging from 1-30 seconds
+- - take a sequence of exposures lasting at least 2 hours
+- - maximize the imager's duty cycle
+
+Our instrument exceeds these goals, and we describe its construction in this section. We focus the discussion on system components associated with data acquisition, and we defer discussion of data analysis to the following section [TODO: ref label].
+
+\subsection{System components}
+
+In this section we itemize the system components and the design choice motivating their selection. We also comment on cost-effective alternatives and describe the associated trade-offs.
+
+Our instrument design comprises three loosely coupled, highly cohesive, and tightly encapsulated systems. [TODO: itemize, reorg] [TODO: reference to systems design book] Each component is loosely coupled in that it communicates with other components only through standardized interfaces (e.g. GigE, TTL, RS-232, OS system time API). Each component is highly cohesive in that it has a dedicated purpose (e.g. data acquisition, triggering, timestamp auditing). Each component is tightly encapsulated in that all components function independently of each other (e.g. the GPS receiver is not affected by Internet outages, data acquisition records correct timestamps even if TTL triggers are missed).  These design choices improve the instrument's fault tolerance, reduce the number and severity of fail points, enhance the instrument's extensibility for other research applications, and improve modularity so that components of the instrument can be reused within other instruments.
+
 The method is extensible to other data acquisition devices as well, such as spectrometer. The primary requirement is that the camera be externally triggered and/or give a voltage signal indicating the camera's internal status. 
+
+[TODO: itemize]
+
+[TODO: list of equipment with connections, include computer] [TODO: diagram with relationships]
+
+- Our solution
+
+- - Data acquisition: We acquire data using an ProEM 1024B EMCCD from Princeton Instruments with the associated data acquisition software, LightField [TODO: links]. We elected to use Princeton Instruments cameras from favorable past experiences with Princeton Instruments equipment and their longevity [TODO: cite Nather's papers]. We chose a camera that could be triggered from an external TTL signal to ensure timestamp accuracy and precision. The camera with its software is capable of continuous exposures from ~5ms to multiple hours. We chose a frame transfer camera to minimize the time spent with data readout, thereby maximizing the imager's duty cycle. The observer interacts with the camera solely through LightField. Using the software supplied by the camera manufacturer ensures that all features of the camera are available to the observer, that the camera operates as intended by the manufacturer, and that the manufacturer's technical support can assess any issues found in using the equipment and software.
+
+- - Triggering: A Trimble Thunderbolt E GPS receiver with its associated software, Trimble Visual Timing Studio [TODO: links], triggers the ProEM camera with a one pulse-per-second TTL signal. The observer chooses the settings for the ProEM camera within LightField, including the form of trigger response (i.e take one image per received trigger), and arms the camera which then begins acuquiring the sequence of images. Because the ProEM ignores pulses while exposing, there is no need to modulate the one pulse-per-second signal from the Trimble GPS receiver. To prevent the camera from missing the next pulse at the end of an integer-second exposure (e.g. a 5-second exposure), the observer can set the ProEM to a exposure time just long enough so that frame transfer completes before the next pulse is received (e.g. a 5-second exposure is set to 4.998 seconds if frame transfer takes ~1.2 ms). Otherwise, there is one second of down time between exposures, but this is evident from the timestamps at the beginning and end of every exposure in the sequence. Triggering from the GPS receiver ensures that the beginning of the triggered frame is aligned with the beginning of an integer second.
+
+- - Timestamping: For every exposure within an image sequence, LightField records the time that the exposure began and the time that the exposure ended by combining absolute and relative timestamps. When the observer arms the camera for acquisition, that event fetches the current system time from the data acquisition computer to a precision of 1~ms, and that event initializes the ProEM's internal counter/timer card to begin counting the number of elapsed microseconds, starting at 0 us.
+
+The computer system time that was fetched upon arming the camera is the absolute timestamp (i.e. including the computer's timezone, kept at UTC) when the  ProEM's internal counter/timer card began at 0 us. The system time is continually maintained by two software systems for redundancy: a software package for Internet time servers and clients, Domain Time II Client, and the manufacturer's software for the GPS receiver, Trimble Visual Timing Studio [TODO: links]. Domain Time Client trains and steps the system time to match NTP, and we set it to poll Internet time servers every 5 seconds, step the system clock to correct any difference with NTP greater than 1~ms, then log all timing events. Even during data acquisition, the system time is within 5~ms NTP 95\% of the time, within 10 ms of NTP 99\% of the time, and within 100ms of NTP 100\% of the time. [TODO: CHECK] In the event of a prolonged Internet outage at the observatory, we made the time keeping of the computer's system clock redundant with the serial output of the Trimble Thunderbolt E. We use the Time Keeper tool within Trimble's Visual Timing Studio to step the system clock to UTC every 60 seconds. These redundant systems ensure that the absolute timestamp from the system clock is always within 100 ms of UTC. In conjunction with triggering from the GPS receiver, every triggered exposure therefore begins within 1~ms of an integer second with known UTC timestamp. The 1~ms uncertainty is only constrained by the response of the electronic hardware. [TODO: give plot showing that the systems play nice]
+
+The number of elapsed microseconds since arming the camera until an exposure begins or ends is a relative timestamp, and this timestamp validates that every triggered exposure did indeed begin on an integer second. The counter/timer card has a resolution of 1E6 ticks per second with a drift of -6 us/second (see section "Performance test"), which is typical of counter/timer cards [TODO: IEEE ref] [TODO: code snippet of time stamps illustrating differences] [TODO: insert discussion from tsphot wiki] [TODO: mention fail points, missed triggers from loose bnc are caught]
+
+- Timing tests
+
+We constructed a closed-loop system as a timing test [TODO: ref to control theory text]: we aimed the camera at the computer display and imaged the system time. Because we quantify and log the differences between the computer system time and NTP, i.e. with Domain Time Client, we verified that the correct timestamps are being written to the image data files. [TOOD: DO TEST AND DESCRIBE USE OF COUNTER TIMER CARD].
+
+We note that with a counter/timer card in a spare PCI port within the same data acquisition computer or within a separate computer (e.g. from \url[National Instruments]{http://www.ni.com/}), a closed-loop control system can be easily incorporated into any instrumental setup that exposes TTL signals. The control system can be used to verify a sequence of events during operation, not just to verify timestamps. And while we use the ProEM's has a built-in counter/timer card to verify timestamps with microsecond precision, we note that researchers can also borrow techniques from professional photography to check event timings on the order of milliseconds (e.g. "shutter lag tests" using strobe sensors or LED panels [TODO: links]).
+
+- Alternatives and extensions
+
+[TODO: urls] For our instrument design, the key components that ensure precision timestamps are triggering on an external TTL signal from a GPS receiver and maintaining the computer's system time via time server software (backed up with the serial output from the GPS receiver). However, the camera that we chose is high-priced, and astronomy research is not Princeton Instruments' target market (private communication with Princeton Instruments representatives, 2012). For researchers building a new time-series imager, there are less-expensive cameras designed specifically for astronomy and that also expose TTL signals (e.g. [TODO: qsi url]). Camera's such as these comply with [TODO: ascom url], and can thus interface with a large range of astronomy-specific software (e.g. [TODO: maximdl url], which integrates camera control with that of the telescope, dome, filter wheel, weather station, etc). These astronomy-specific hardware and software are due to increasing demand from the amateur astronomy market [TODO: link].
+% url[QSI]{http://qsimaging.com/products.html}
+% url[MaximDL]{http://cyanogen.com/maxim_main.php}
+% url[ASCOM standards]{http://ascom-standards.org/}
+
+For pre-existing instruments, as noted in the section Timing tests [TODO: link], any data acquisition system that has input/ouput TTL signals can incorporate a closed-loop control system with counter/timer cards to validate the timestamps of data acquisition events. If the card also has digital I/O capability (i.e. it can record when pulses are received as well as modulate the pulses), then the camera status can be used to trigger other events. Using our instrument as an example, adding a counter/timer card with digital I/O, we can run a motor-driven filter wheel to do time-series imaging across a sequence of filters. Lastly, because we are using the LightField data acquisition software from Princeton Instrument, the time-series imager can be made into a time-series spectrometer simply by connecting the camera to a Princeton Instruments spectrograph and operating with LightField.
 
 \section{Observations}
 
-[
-- Obs in press
-- Lightcurve
-- Analysis: open source
-- Archiving: TACC
-]
+This time-series imager has been in production at the McDonald Observatory 2.1m since May 2014. We have conducted observations to appear in [TODO: give publications].
+
+(TODO: describe camera mount (ACES),
+tested at Meyer Observatory, dry nitrogen)
+
+[TODO: example lightcurve with timestamps]
+
+[TODO: image of instrument]
+
+\subsection{Data pipeline}
+
+Because Princeton Instruments is not astronomy-specific, the native data format is not FITS, but the Princeton Instruments data format is very well documented [TODO: footnote], and there are many utilities to read the data for export to FITS or custom data analysis in many languages. Our research group uses Python and the photometry tools within the astropy collaboration (e.g. [TODO: enthought link, my own package link, tsphot link, astropy citation and link]). [TODO: focusing, online analysis, post-acquisition processing, reduction] [TODO: TACC archive, NoSQL, SQL database with metadata, cite TACC]
+
+% \footnote{ [TODO: pi url] }
+% \url[Princeton Instrument SPE File Format Version 3.0]{ftp://ftp.princetoninstruments.com/Public/Manuals/Princeton\%20Instruments/SPE\%203.0\%20File\%20Format\%20Specification.pdf}
 
 \acknowledgments
 
