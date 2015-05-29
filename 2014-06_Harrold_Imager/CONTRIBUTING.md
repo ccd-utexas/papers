@@ -30,3 +30,4 @@ Guidelines if you are not part of the ccd-utexas GitHub organization.
 Guidelines specific to this paper.
 
 - Follow PASP [Instructions for Electronic Manuscript Submission](http://www.press.uchicago.edu/journals/pasp/elec_submit.html?journal=pasp)
+- Follow PASP [Information for Authors](http://www.jstor.org/page/journal/publastrsocipaci/forAuthor.html)
